@@ -19,7 +19,13 @@
             </tr>
         </thead>
         <tbody>
+            @php
+                $total = 0;
+            @endphp
             @foreach ($ventas as $venta)
+            @php
+                $total = $total + $venta->total_mxn_reserva; 
+            @endphp
                 <tr>
                     <td>{{ $venta->localizador }}</td>
                     <td>{{ $venta->canal }}</td>
@@ -28,6 +34,13 @@
                     <td>{{ $venta->total_mxn_reserva }}</td>
                 </tr>
             @endforeach
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>Total venta</td>
+                <td>$ {{ $total }} MXN</td>
+            </tr>
         </tbody>
     </table>
 
