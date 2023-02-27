@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ExcelExport;
-use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
+use App\Models\Canal;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
-use Barryvdh\DomPDF\PDF;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf as PdfDompdf;
 
 class ExportController extends Controller
 {
@@ -22,26 +20,31 @@ class ExportController extends Controller
     public function export(Request $request)
     {
         //realizamos la consulta
-        $reporte = DB::table('reservations')
-            ->select(
-                DB::raw("CONCAT('VCM', reservations.id) as localizador"),
-                'channel.canal',
-                DB::raw("concat('users.name', ' ', 'users.last_name') as rep_venta"),
-                'reservations.total_mxn_reserva',
-                'destinatios.name as hotel_venta',
-                'reservations.estado'
-            )
-            ->join('channel', 'channel.id', '=', 'reservations.id_canal')
-            ->join('users', 'users.id', '=', 'reservations.id_user')
-            ->join('destinatios', 'destinatios.id', '=', 'reservations.hotel_id')
-            ->whereIn('reservations.id_canal', [1, 3])
-            ->where('reservations.estado', '=', 'PAGADA')
-            ->where('reservations.created_at', '>=', $request->post('desde'))
-            ->where('reservations.created_at', '<=', $request->post('hasta'))
-            ->get();
+        // $reporte = DB::table('reservations')
+        //     ->select(
+        //         DB::raw("CONCAT('VCM', reservations.id) as localizador"),
+        //         'channel.canal',
+        //         DB::raw("concat('users.name', ' ', 'users.last_name') as rep_venta"),
+        //         'reservations.total_mxn_reserva',
+        //         'destinatios.name as hotel_venta',
+        //         'reservations.estado'
+        //     )
+        //     ->join('channel', 'channel.id', '=', 'reservations.id_canal')
+        //     ->join('users', 'users.id', '=', 'reservations.id_user')
+        //     ->join('destinatios', 'destinatios.id', '=', 'reservations.hotel_id')
+        //     ->whereIn('reservations.id_canal', [1, 3])
+        //     ->where('reservations.estado', '=', 'PAGADA')
+        //     ->where('reservations.created_at', '>=', $request->post('desde'))
+        //     ->where('reservations.created_at', '<=', $request->post('hasta'))
+        //     ->get();
 
-        //la respuesta lo pasamos a una colleccion
-        $reporte = collect($reporte)->toArray();
+        $reservas = Reservation::with(['canal', 'user', 'destination'])
+            ->where('created_at', '>=', $request->post('desde'))
+            ->where('created_at', '>=', $request->post('hasta'))
+            ->take(5)->get();
+
+        //la respuesta lo pasamos a un array
+        $reporte = collect($reservas)->toArray();
 
         //creamos el pdf
         $pdfInstance = App::make('dompdf.wrapper');
@@ -59,6 +62,8 @@ class ExportController extends Controller
                 ->attachData($pdfArchivo, 'Ventas.pdf')
                 ->setBody('Adjunto reporte de ventas');
         });
+
+        //array_filter([1,2,10], function ($item) => );
 
         return response(['mensaje' => 'Enviado correctamente']);
     }

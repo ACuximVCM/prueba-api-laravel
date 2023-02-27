@@ -19,5 +19,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/', [ExportController::class, 'index']);
-Route::post('/export-excel', [ExportController::class, 'export']);
+// Route::post('/', [ExportController::class, 'index']);
+Route::post('/export', [ExportController::class, 'export']);
