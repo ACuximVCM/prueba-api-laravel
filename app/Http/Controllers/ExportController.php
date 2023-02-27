@@ -41,11 +41,13 @@ class ExportController extends Controller
         $reservas = Reservation::with(['canal', 'user', 'destination'])
             ->where('created_at', '>=', $request->post('desde'))
             ->where('created_at', '>=', $request->post('hasta'))
-            ->take(5)->get();
+            ->take(5)
+            ->get();
 
         //la respuesta lo pasamos a un array
         $reporte = collect($reservas)->toArray();
 
+        //dd($reporte);
         //creamos el pdf
         $pdfInstance = App::make('dompdf.wrapper');
         $pdf = $pdfInstance->loadView('export', ['ventas' => $reporte]);
@@ -62,8 +64,6 @@ class ExportController extends Controller
                 ->attachData($pdfArchivo, 'Ventas.pdf')
                 ->setBody('Adjunto reporte de ventas');
         });
-
-        //array_filter([1,2,10], function ($item) => );
 
         return response(['mensaje' => 'Enviado correctamente']);
     }

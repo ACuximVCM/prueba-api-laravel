@@ -11,7 +11,7 @@
     <table>
         <thead>
             <tr>
-                <td style="background-color: #364ADD; color: white;">Localizador</td>
+                <td style="background-color: #364ADD; color: white;">Usuario</td>
                 <td style="background-color: #364ADD; color: white;">Canal</td>
                 <td style="background-color: #364ADD; color: white;">Hotel</td>
                 <td style="background-color: #364ADD; color: white;">Estado</td>
@@ -19,19 +19,19 @@
             </tr>
         </thead>
         <tbody>
-            {{-- @php
+            @php
                 $total = 0;
-            @endphp --}}
+            @endphp
             @foreach ($ventas as $venta)
             @php
-                $venta = collect($venta)->toArray();
+                $total = $total + $venta['total_mxn_reserva'];
             @endphp
-            {{-- @php
-                $total = $total + $venta->total_mxn_reserva; 
-            @endphp --}}
                 <tr>
-                    <td>{{ $venta['id'] }}</td>
+                    <td>{{ $venta['user']['name'] }}</td>
                     <td>{{ $venta['canal']['canal'] }}</td>
+                    <td>{{ $venta['destination']['name'] }}</td>
+                    <td>{{ $venta['estado'] }}</td>
+                    <td>{{ $venta['total_mxn_reserva'] }}</td>
                 </tr>
             @endforeach
             <tr>
@@ -39,7 +39,7 @@
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>Total venta</td>
-                {{-- <td>$ {{ $total }} MXN</td> --}}
+                <td>$ {{ $total }} MXN</td>
             </tr>
         </tbody>
     </table>
